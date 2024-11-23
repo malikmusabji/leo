@@ -763,7 +763,7 @@ def mark_attendance(username):
 
 def student_dashboard():
     st.sidebar.title("Navigation")
-    page = st.sidebar.selectbox("Choose a page", ("Home", "Simulation", "Reading Material", "Questions", "Attendence"))
+    page = st.sidebar.selectbox("Choose a page", ("Home", "Simulation", "Reading Material", "Questions", "Attendance"))
     
     
 
@@ -796,15 +796,15 @@ def student_dashboard():
         display_session_timer()
         st.write("Welcome to the Engaging Page.")
         questions_page()
-    elif page == "Attendence":
-        st.title("YOUR Attendence")
+    elif page == "Attendance":
+        st.title("YOUR Attendance")
         display_flip_clock()
         display_session_timer()
         st.markdown("""The Attendance page is a time-locked page preventing acess to other websites while in use, and automatically marks your attendance when in class.""")
         Attendence()
 
     
-def Attendence ():   
+def Attendance ():   
     st.title("Student Dashboard")
     init_present_today_db()
    # Ensure the login_time is timezone-aware
