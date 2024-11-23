@@ -5,9 +5,11 @@ import pandas as pd
 from PyPDF2 import PdfReader
 import io
 import os
+from pptx import Presentation
 import requests
 import bcrypt
 import pytz
+from utils import get_llminfo
 import uuid
 import base64
 from datetime import datetime, timedelta
