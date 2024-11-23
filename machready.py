@@ -23,7 +23,7 @@ def login_page():
     user_id = st.text_input("User ID (Numerical Only)")
     password = st.text_input("Password", type="password")
 
-    if st.button("Login"):
+    if st.button("Onyourrisk"):
         if not user_id or not password:
             st.warning("Please enter both User ID and Password.")
             return
