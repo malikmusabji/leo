@@ -9,7 +9,7 @@ from pptx import Presentation
 import requests
 import bcrypt
 import pytz
-from utils import get_llminfo
+get_llminfo
 import uuid
 import base64
 from datetime import datetime, timedelta
@@ -47,6 +47,16 @@ def login_page():
             return True
         else:
             st.error("Invalid User ID or Password.")
+            
+def get_llminfo():
+    st.sidebar.header("Options", divider='rainbow')
+    model = st.sidebar.radio("Choose LLM:", ("gemini-1.5-pro", "gemini-1.5-flash", "gemini-1.5-standard", "gemini-1.5-advanced"))
+    temperature = st.sidebar.slider("Temperature:", 0.0, 2.0, 1.0, 0.25)
+    top_p = st.sidebar.slider("Top P:", 0.0, 1.0, 0.94, 0.01)
+    max_tokens = st.sidebar.slider("Maximum Tokens:", 100, 5000, 2000, 100)
+    top_k = st.sidebar.slider("Top K:", 0, 100, 50, 1)
+    return model, temperature, top_p, max_tokens, top_k
+
 
 def save_teacher_attendance(present_students):
     """Save the attendance of the selected students to the database."""
