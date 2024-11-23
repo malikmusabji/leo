@@ -521,7 +521,7 @@ def Attendence ():
     elapsed_time = (current_time - st.session_state["login_time"]).total_seconds()
 
     # Display waiting information if less than 3 minutes
-    if elapsed_time < 10:  # 3 minutes
+    if elapsed_time < 180:  # 3 minutes
         st.info(f"Please wait for {int(180 - elapsed_time)} seconds before entering the code.")
         st.stop()  # Stop the execution of the dashboard
 
