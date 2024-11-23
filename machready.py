@@ -40,33 +40,6 @@ def login_page():
         else:
             st.error("Invalid User ID or Password.")
 
-def seed_users():
-    """Seed the database with default teacher and student users for testing."""
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-
-        # Check if users already exist in the database
-        cursor.execute("SELECT COUNT(*) FROM users")
-        count = cursor.fetchone()[0]
-
-        if count > 0:
-            print("Users already exist. Skipping seeding.")
-            return  # Exit if users already exist
-
-        # Add default teacher and student credentials
-        users = [
-            ("12345", bcrypt.hashpw("teacher_pass".encode('utf-8'), bcrypt.gensalt()), "teacher"),
-            ("1234", bcrypt.hashpw("student_pass".encode('utf-8'), bcrypt.gensalt()), "student"),
-        ]
-        cursor.executemany("INSERT INTO users (user_id, password_hash, user_type) VALUES (?, ?, ?)", users)
-        conn.commit()
-        print("Default users seeded successfully!")
-    except Exception as e:
-        print(f"Error seeding users: {e}")
-    finally:
-        conn.close()
-
 def save_teacher_attendance(present_students):
     """Save the attendance of the selected students to the database."""
     try:
