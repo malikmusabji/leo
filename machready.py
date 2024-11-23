@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 genai.configure(api_key=st.secrets["API_KEY"])
 
 def login_page():
-    st.subheader("Login")
+    st.subheader("OnyourownRISK")
     st.markdown("<h1 style='text-align: center; color: #ff5733;'>PedoMUS</h1>", unsafe_allow_html=True)
     st.markdown("""
     ### Welcome to PedoMUS
@@ -23,7 +23,7 @@ def login_page():
     user_id = st.text_input("User ID (Numerical Only)")
     password = st.text_input("Password", type="password")
 
-    if st.button("Onyourrisk"):
+    if st.button("Login"):
         if not user_id or not password:
             st.warning("Please enter both User ID and Password.")
             return
