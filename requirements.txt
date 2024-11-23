@@ -7,3 +7,4 @@ uuid
 datetime
 python-pptx
 google.generativeai
+utils
