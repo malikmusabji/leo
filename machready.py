@@ -10,6 +10,7 @@ import pytz
 import uuid
 import base64
 from datetime import datetime, timedelta
+genai.configure(api_key=st.secrets["API_KEY"])
 
 
 def login_page():
