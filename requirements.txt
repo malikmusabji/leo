@@ -1,11 +1,10 @@
-streamlit as st
 sqlite3
-pandas as pd
-PyPDF2 import PdfReader
+pandas 
+PyPDF2
 os
 requests
 bcrypt
 pytz
 uuid
 base64
-datetime import datetime, timedelta
+datetime
