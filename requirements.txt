@@ -4,5 +4,4 @@ requests
 bcrypt
 pytz
 uuid
-base64
 datetime
