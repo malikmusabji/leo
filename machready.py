@@ -354,6 +354,11 @@ def professor_dashboard():
         else:
             st.error("Failed to generate a code.")
 
+    st.subheader("Upload Learning Materials")
+    uploaded_file = st.file_uploader("Choose a file to upload", type=['pdf', 'docx', 'pptx'])
+    if uploaded_file is not None:
+        save_material(uploaded_file)
+
     # Option to view attendance records
     st.subheader("View Attendance Records")
     if st.button("Show Attendance Records"):
