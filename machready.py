@@ -9,7 +9,6 @@ from pptx import Presentation
 import requests
 import bcrypt
 import pytz
-get_llminfo
 import uuid
 import base64
 from datetime import datetime, timedelta
