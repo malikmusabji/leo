@@ -10,10 +10,8 @@ import bcrypt
 import pytz
 import uuid
 import base64
-from db import init_db
 from datetime import datetime, timedelta
-genai.configure(api_key=st.secrets["API_KEY"])
-init_db()
+genai.configure(api_key=st.secrets["API_KEY"]
 
 def login_page():
     st.subheader("Login")
