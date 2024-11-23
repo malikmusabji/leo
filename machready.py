@@ -395,12 +395,19 @@ def simulation_page():
                 allowfullscreen>
             </iframe>
         """),
-        ("Gel Electrophoresis", """
-            <https://www.labxchange.org/library/items/lb:LabXchange:9548bee3:lx_simulation:1?fullscreen=true"
-                width="650"
-                height="500"
+        ("Photosynthesis", """
+            <iframe src="https://phet.colorado.edu/sims/cheerpj/photoelectric/latest/photoelectric.html?simulation=photoelectric"
+                width="800"
+                height="600"
                 allowfullscreen>
             </iframe>
+        """),
+        ("Photosynthesis", """
+            <iframe src="https://phet.colorado.edu/sims/html/my-solar-system/latest/my-solar-system_en.html"
+                 width="800"
+                 height="600"
+                 allowfullscreen>
+              </iframe>
         """),
         ("Beer's Law Lab", """
             <iframe src="https://phet.colorado.edu/sims/html/beers-law-lab/latest/beers-law-lab_en.html"
