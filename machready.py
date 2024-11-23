@@ -1,5 +1,6 @@
 import streamlit as st
 import sqlite3
+import google.generativeai as genai
 import pandas as pd
 from PyPDF2 import PdfReader
 import io
