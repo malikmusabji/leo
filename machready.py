@@ -40,6 +40,33 @@ def login_page():
         else:
             st.error("Invalid User ID or Password.")
 
+def seed_users():
+    """Seed the database with default teacher and student users for testing."""
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # Check if users already exist in the database
+        cursor.execute("SELECT COUNT(*) FROM users")
+        count = cursor.fetchone()[0]
+
+        if count > 0:
+            print("Users already exist. Skipping seeding.")
+            return  # Exit if users already exist
+
+        # Add default teacher and student credentials
+        users = [
+            ("12345", bcrypt.hashpw("teacher_pass".encode('utf-8'), bcrypt.gensalt()), "teacher"),
+            ("1234", bcrypt.hashpw("student_pass".encode('utf-8'), bcrypt.gensalt()), "student"),
+        ]
+        cursor.executemany("INSERT INTO users (user_id, password_hash, user_type) VALUES (?, ?, ?)", users)
+        conn.commit()
+        print("Default users seeded successfully!")
+    except Exception as e:
+        print(f"Error seeding users: {e}")
+    finally:
+        conn.close()
+
 def save_teacher_attendance(present_students):
     """Save the attendance of the selected students to the database."""
     try:
@@ -234,21 +261,32 @@ def init_code_db():
 
 # Generate a unique code
 def generate_unique_code():
-    init_code_db()
-    conn = sqlite3.connect("codes.db")
-    cursor = conn.cursor()
+    """Generate a unique attendance code and store it in the database with an expiration time."""
+    code = str(uuid.uuid4())[:8]  # Generate a unique code (8 characters)
+    expiration_time = datetime.now() + timedelta(minutes=6)  # Code expires in 6 minutes
 
-    # Generate a unique code and calculate expiration time
-    unique_code = str(uuid.uuid4())[:8]
-    expiration_time = datetime.now() + timedelta(minutes=6)
+    try:
+        conn = sqlite3.connect("codes.db")
+        cursor = conn.cursor()
 
-    # Store the code and expiration time in the database
-    cursor.execute("INSERT INTO codes (code, expiration_time) VALUES (?, ?)", 
-                   (unique_code, expiration_time.strftime("%Y-%m-%d %H:%M:%S")))
-    conn.commit()
-    conn.close()
-    return unique_code, expiration_time
+        # Create the codes table if it doesn't exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS codes (
+                code TEXT PRIMARY KEY,
+                expiration_time TEXT NOT NULL
+            )
+        """)
+        conn.commit()
 
+        # Store the code and its expiration time
+        cursor.execute("INSERT INTO codes (code, expiration_time) VALUES (?, ?)", 
+                       (code, expiration_time.strftime("%Y-%m-%d %H:%M:%S")))
+        conn.commit()
+        conn.close()
+        return code, expiration_time
+    except Exception as e:
+        print(f"Error generating unique code: {e}")
+        return None, None
 
 # Authenticate user by checking credentials in the database
 def authenticate(user_id, password):
@@ -306,6 +344,15 @@ def professor_dashboard():
             save_teacher_attendance(present_students)  # Ensure this function is defined
         else:
             st.warning("Please select at least one student.")
+    
+     # Option to generate a unique attendance code
+    if st.button("Generate Code"):
+        unique_code, expiration_time = generate_unique_code()
+        if unique_code:
+            st.success(f"Generated Code: {unique_code}")
+            st.write(f"Code Expires At: {expiration_time.strftime('%H:%M:%S')}")
+        else:
+            st.error("Failed to generate a code.")
 
     # Option to view attendance records
     st.subheader("View Attendance Records")
@@ -521,7 +568,7 @@ def Attendence ():
     elapsed_time = (current_time - st.session_state["login_time"]).total_seconds()
 
     # Display waiting information if less than 3 minutes
-    if elapsed_time < 180:  # 3 minutes
+    if elapsed_time < 10:  # 3 minutes
         st.info(f"Please wait for {int(180 - elapsed_time)} seconds before entering the code.")
         st.stop()  # Stop the execution of the dashboard
 
