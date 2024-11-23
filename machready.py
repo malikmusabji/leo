@@ -146,6 +146,274 @@ def validate_code(input_code):
     finally:
         conn.close()
 
+def questions_page():
+    st.subheader("Questions Page")
+    st.markdown("""The Questions page allows you to upload PDFs and PPTs, automatically extracting the information and generating interactive MCQ questions for practice. To your left is parameter control for the LLM you chose to use.""")
+    model, temperature, top_p, max_tokens, top_k = get_llminfo()
+
+    uploaded_file = st.file_uploader("Upload a PDF or PPT file", type=["pdf", "ppt", "pptx"])
+
+    if uploaded_file is not None:
+        text = ""
+        if uploaded_file.type == "application/pdf":
+            pdf_reader = PdfReader(uploaded_file)
+            for page in pdf_reader.pages:
+                text += page.extract_text()
+        elif uploaded_file.type in ["application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"]:
+            presentation = Presentation(uploaded_file)
+            for slide in presentation.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text"):
+                        text += shape.text + "\n"
+            text = text.strip()
+
+        if st.button("Generate MCQs"):
+            if text:
+                generation_config = {
+                    "temperature": temperature,
+                    "top_p": top_p,
+                    "max_output_tokens": max_tokens,
+                    "top_k": top_k
+                }
+                model_instance = genai.GenerativeModel(model_name=model, generation_config=generation_config)
+
+                prompt = (
+                    f"Please generate exactly 5 multiple-choice questions based on the following text:\n\n"
+                    f"{text}\n\n"
+                    "Each question should have 4 options labeled A, B, C, and D. "
+                    "At the end of each question, specify the correct answer in the format:\n"
+                    "Correct Answer: [A/B/C/D]\n\n"
+                    "For example:\n"
+                    "1. What is the capital of France?\n"
+                    "A) Paris\n"
+                    "B) London\n"
+                    "C) Rome\n"
+                    "D) Berlin\n"
+                    "Correct Answer: A\n\n"
+                    "Now generate 5 questions following this format:"
+                )
+                
+                response = model_instance.generate_content([prompt])
+                mcqs_with_answers = response.text.strip().split('\n\n')
+
+                st.session_state.mcqs = []
+                st.session_state.correct_answers = []
+
+                for mcq in mcqs_with_answers:
+                    lines = mcq.split('\n')
+                    if len(lines) < 2:
+                        continue
+                    
+                    question_text = lines[0].strip()
+                    options = [option.strip() for option in lines[1:5] if option.strip()]
+
+                    correct_answer_line = lines[-1] if len(lines) > 5 else ""
+                    correct_answer = correct_answer_line.split(":")[-1].strip().upper()
+                    correct_answer = correct_answer.replace("**", "")
+
+                    if not options or not correct_answer:
+                        continue
+                    
+                    st.session_state.mcqs.append((question_text, options))
+                    st.session_state.correct_answers.append(correct_answer)
+
+                st.session_state.user_answers = [None] * len(st.session_state.mcqs)
+
+        if 'mcqs' in st.session_state:
+            st.subheader("Generated MCQs:")
+            
+            for i, (question_text, options) in enumerate(st.session_state.mcqs):
+                selected_option = st.radio(
+                    question_text, 
+                    options, 
+                    key=f"question_{i}", 
+                    index=options.index(st.session_state.user_answers[i]) if st.session_state.user_answers[i] in options else 0
+                )
+                st.session_state.user_answers[i] = selected_option
+
+            if st.button("Submit Answers"):
+                correct_answers_count = 0
+
+                for i, selected_option in enumerate(st.session_state.user_answers):
+                    normalized_selected_option = selected_option[0].upper()
+                    normalized_correct_answer = st.session_state.correct_answers[i].upper()
+
+                    if normalized_selected_option == normalized_correct_answer:
+                        correct_answers_count += 1
+                
+                total_questions = len(st.session_state.mcqs)
+                st.success(f"You got {correct_answers_count} out of {total_questions} correct!")
+
+
+def reading_material_page():
+    st.subheader("Reading Material Interaction")
+    st.markdown("""The Reading Material page allows you to upload various types of media, enabling you to chat with a chatbot about the content for better understanding and clarity also providing additional sources to read. To your left is parameter control for the LLM you chose to use.""")
+    model, temperature, top_p, max_tokens, top_k = get_llminfo()
+
+    typepdf = st.radio("Select the type of media to interact with:", ("PDF", "Images", "Videos", "PPT"), index=0)
+
+    if typepdf == "PDF":
+        st.write("You selected PDF. Upload your files below.")
+        uploaded_files = st.file_uploader("Choose one or more PDFs", type='pdf', accept_multiple_files=True)
+        if uploaded_files:
+            text = ""
+            for pdf in uploaded_files:
+                pdf_reader = PdfReader(pdf)
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
+
+            generation_config = {
+                "temperature": temperature,
+                "top_p": top_p,
+                "max_output_tokens": max_tokens,
+                "top_k": top_k,
+                "response_mime_type": "text/plain",
+            }
+            model_instance = genai.GenerativeModel(
+                model_name=model,
+                generation_config=generation_config,
+            )
+            st.write(model_instance.count_tokens(text))
+            question = st.text_input("Enter your question and hit return.")
+            if question:
+                response = model_instance.generate_content([question, text])
+                st.write(response.text)
+
+    elif typepdf == "Images":
+        st.write("You selected Images. Upload your image file below.")
+        image_file = st.file_uploader("Upload your image file.", type=["jpg", "jpeg", "png"])
+        if image_file:
+            temp_file_path = image_file.name
+            with open(temp_file_path, "wb") as f:
+                f.write(image_file.getbuffer())
+
+            st.write("Uploading image...")
+            uploaded_image = genai.upload_file(path=temp_file_path)
+            while uploaded_image.state.name == "PROCESSING":
+                time.sleep(5)
+                uploaded_image = genai.get_file(uploaded_image.name)
+
+            if uploaded_image.state.name == "FAILED":
+                st.error("Failed to process image.")
+                return
+
+            st.write("Image uploaded successfully. Enter your prompt below.")
+            prompt2 = st.text_input("Enter your prompt for the image.")
+            if prompt2:
+                generation_config = {
+                    "temperature": temperature,
+                    "top_p": top_p,
+                    "max_output_tokens": max_tokens,
+                    "top_k": top_k,
+                }
+                response_image = model_instance.generate_content([prompt2, uploaded_image])
+                st.write(response_image.text)
+
+    elif typepdf == "Videos":
+        st.write("You selected Videos. Upload your video file below.")
+        video_file = st.file_uploader("Upload your video file.", type=["mp4", "mov", "avi"])
+        if video_file:
+            temp_file_path = video_file.name
+            with open(temp_file_path, "wb") as f:
+                f.write(video_file.getbuffer())
+
+            st.write("Uploading video...")
+            uploaded_video = genai.upload_file(path=temp_file_path)
+            while uploaded_video.state.name == "PROCESSING":
+                time.sleep(5)
+                uploaded_video = genai.get_file(uploaded_video.name)
+
+            if uploaded_video.state.name == "FAILED":
+                st.error("Failed to process video.")
+                return
+            
+            st.write("Video uploaded successfully. Enter your prompt below.")
+            prompt3 = st.text_input("Enter your prompt for the video.")
+            if prompt3:
+                model_instance = genai.GenerativeModel(model_name=model)
+                response = model_instance.generate_content([uploaded_video, prompt3])
+                st.markdown(response.text)
+                genai.delete_file(uploaded_video.name)
+
+    elif typepdf == "PPT":
+        st.write("You selected PPT. Upload your PowerPoint file below.")
+        uploaded_ppt = st.file_uploader("Choose a PPT file", type='pptx')
+        if uploaded_ppt:
+            text = ""
+            presentation = Presentation(uploaded_ppt)
+            for slide in presentation.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text"):
+                        text += shape.text + "\n"
+            text = text.strip()
+            st.write("Extracted text from PowerPoint:")
+            st.write(text)
+
+            generation_config = {
+                "temperature": temperature,
+                "top_p": top_p,
+                "max_output_tokens": max_tokens,
+                "top_k": top_k,
+                "response_mime_type": "text/plain",
+            }
+            model_instance = genai.GenerativeModel(
+                model_name=model,
+                generation_config=generation_config,
+            )
+            st.write(model_instance.count_tokens(text))
+            question = st.text_input("Enter your question about the PPT content and hit return.")
+            if question:
+                response = model_instance.generate_content([question, text])
+                st.write(response.text)
+
+def simulation_page():
+    st.subheader("Simulation Page")
+    st.write("Select a simulation to view:")
+    st.markdown("""The Simulations page provides various simulation from Phet, which are a great tool to help build foundational knowledge.""")
+    simulations = [
+        ("Gene Expression Essentials", """
+            <iframe src="https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_en.html"
+                width="650"
+                height="500"
+                allowfullscreen>
+            </iframe>
+        """),
+        ("Beer's Law Lab", """
+            <iframe src="https://phet.colorado.edu/sims/html/beers-law-lab/latest/beers-law-lab_en.html"
+                width="650"
+                height="500"
+                allowfullscreen>
+            </iframe>
+        """),
+        ("Kepler's Laws", """
+            <iframe src="https://phet.colorado.edu/sims/html/keplers-laws/latest/keplers-laws_en.html"
+                width="650"
+                height="500"
+                allowfullscreen>
+            </iframe>
+        """),
+        ("Hooke's Law", """
+            <iframe src="https://phet.colorado.edu/sims/html/hookes-law/latest/hookes-law_en.html"
+                width="650"
+                height="500"
+                allowfullscreen>
+            </iframe>
+        """),
+        ("pH Scale Basics", """
+            <iframe src="https://phet.colorado.edu/sims/html/ph-scale-basics/latest/ph-scale-basics_en.html"
+                width="650"
+                height="500"
+                allowfullscreen>
+            </iframe>
+        """)
+    ]
+
+    simulation_names = [sim[0] for sim in simulations]
+    selected_simulation_name = st.selectbox("Select Simulation", simulation_names)
+    selected_simulation = next(sim for sim in simulations if sim[0] == selected_simulation_name)
+
+    st.write(f"**{selected_simulation[0]}**")
+    st.components.v1.html(selected_simulation[1], height=600)
 
 # Function to get user's timezone based on IP address
 def get_user_timezone():
@@ -514,16 +782,19 @@ def student_dashboard():
         display_flip_clock()
         display_session_timer()
         st.write("Implement simulations")
+        simulation_page()
     elif page == "Reading Material":
         st.title("Reading Material")
         display_flip_clock()
         display_session_timer()
         st.write("Here are some flashcards/reading material to engage students.")
+        reading_material_page()
     elif page == "Questions":
         st.title("Questions")
         display_flip_clock()
         display_session_timer()
         st.write("Welcome to the Engaging Page.")
+        questions_page()
     elif page == "Attendence":
         st.title("YOUR Attendence")
         display_flip_clock()
