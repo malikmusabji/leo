@@ -393,6 +393,7 @@ def reading_material_page():
                 st.write(response.text)
 
 def simulation_page():
+    st.set_page_config(layout="wide")
     st.subheader("Simulation Page")
     st.write("Select a simulation to view:")
     st.markdown("""The Simulations page provides various simulation from Phet, which are a great tool to help build foundational knowledge.""")
@@ -827,7 +828,6 @@ def student_dashboard():
         display_flip_clock()
         display_session_timer()
         st.write("Implement simulations")
-        st.set_page_config(layout="wide")
         simulation_page()
     elif page == "Reading Material":
         st.title("Reading Material")
