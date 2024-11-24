@@ -844,7 +844,7 @@ def student_dashboard():
         st.title("YOUR Attendance")
         display_flip_clock()
         display_session_timer()
-        st.markdown(The Attendance page is a time-locked page preventing acess to other websites while in use, and automatically marks your attendance when in class.)
+        st.markdown('''The Attendance page is a time-locked page preventing acess to other websites while in use, and automatically marks your attendance when in class.''')
         Attendance()
 
     
