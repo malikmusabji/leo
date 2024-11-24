@@ -450,6 +450,7 @@ def simulation_page():
             </iframe>
         """)
     ]
+    st.markdown(iframe_code, unsafe_allow_html=True)
 
     simulation_names = [sim[0] for sim in simulations]
     selected_simulation_name = st.selectbox("Select Simulation", simulation_names)
