@@ -405,17 +405,19 @@ def simulation_page():
                 allowfullscreen>
             </iframe>
         """),
+        
         ("Photosynthesis", """
             <iframe src="https://phet.colorado.edu/sims/cheerpj/photoelectric/latest/photoelectric.html?simulation=photoelectric"
         width="800"
         height="600"
         allowfullscreen>
         </iframe> """),
+        
         ("Solarsystem", """
             <iframe src="https://phet.colorado.edu/sims/html/my-solar-system/latest/my-solar-system_en.html"
                  width="800"
                  height="600"
-                 allowfullscreen>
+                 >
               </iframe>
         """),
         ("Beer's Law Lab", """
