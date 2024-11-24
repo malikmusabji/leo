@@ -827,6 +827,7 @@ def student_dashboard():
         display_flip_clock()
         display_session_timer()
         st.write("Implement simulations")
+        st.set_page_config(layout="wide")
         simulation_page()
     elif page == "Reading Material":
         st.title("Reading Material")
