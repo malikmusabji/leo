@@ -393,7 +393,6 @@ def reading_material_page():
                 st.write(response.text)
 
 def simulation_page():
-    st.set_page_config(layout="wide")
     st.subheader("Simulation Page")
     st.write("Select a simulation to view:")
     st.markdown("""The Simulations page provides various simulation from Phet, which are a great tool to help build foundational knowledge.""")
@@ -408,7 +407,7 @@ def simulation_page():
         
         ("Photosynthesis", """
             <iframe src="https://phet.colorado.edu/sims/cheerpj/photoelectric/latest/photoelectric.html?simulation=photoelectric"
-        width="100%"
+        width="105%"
         height="800"
         allowfullscreen>
         </iframe> """),
