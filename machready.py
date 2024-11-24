@@ -408,7 +408,7 @@ def simulation_page():
         
         ("Photosynthesis", """
             <iframe src="https://phet.colorado.edu/sims/cheerpj/photoelectric/latest/photoelectric.html?simulation=photoelectric"
-        width="700"
+        width="500"
         height="600"
         allowfullscreen>
         </iframe> """),
