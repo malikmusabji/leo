@@ -787,7 +787,6 @@ def load_course_info():
 
 
 def mark_attendance(username):
-    """Insert a new attendance record into the database."""
     try:
         conn = sqlite3.connect("attendance.db")
         cursor = conn.cursor()
