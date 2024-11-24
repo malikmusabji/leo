@@ -415,7 +415,7 @@ def simulation_page():
         
         ("Solarsystem", """
             <iframe src="https://phet.colorado.edu/sims/html/my-solar-system/latest/my-solar-system_en.html"
-                 width="750"
+                 width="700"
                  height="600"
                  allowfullscreen>
               </iframe>
