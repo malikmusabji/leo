@@ -604,6 +604,12 @@ def save_material(uploaded_file):
 def professor_dashboard():
     st.title("Professor Dashboard")
 
+    # Logout button in the sidebar
+    if st.sidebar.button("Logout"):
+        st.session_state.logged_in = False
+        st.session_state.pop('login_time', None)
+        st.success("You have been logged out.")
+
     # Attendance section
     st.subheader("Take Attendance")
 
