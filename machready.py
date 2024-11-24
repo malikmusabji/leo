@@ -40,7 +40,7 @@ def login_page():
             st.session_state["user_role"] = user_type
             st.success(f"Login successful! Welcome, {user_type.capitalize()}.")
             st.session_state["username"] = user_id
-            st.success(f"Welcome, {user_id}!")
+            st.success(f"Welcome to future of education, {user_id}!")
             st.session_state.login_time = datetime.now(pytz.timezone(get_user_timezone()))
             st.session_state.login_status = True
             return True
