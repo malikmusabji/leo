@@ -907,7 +907,7 @@ def home():
             st.info("No materials have been uploaded yet.")
 
 def main():
-    """Main function to route users to the appropriate dashboard based on their role."""
+
     if st.session_state.get("logged_in"):
         role = st.session_state["user_role"]
         if role == "teacher":
