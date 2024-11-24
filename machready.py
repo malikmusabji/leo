@@ -13,7 +13,6 @@ import uuid
 import base64
 from datetime import datetime, timedelta
 genai.configure(api_key=st.secrets["API_KEY"])
-st.set_page_config(layout="wide")
 def login_page():
     st.subheader("ThisistheFUTURE")
     st.markdown("<h1 style='text-align: center; color: #ff5733;'>PedoMUS</h1>", unsafe_allow_html=True)
