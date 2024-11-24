@@ -397,7 +397,6 @@ def simulation_page():
     st.subheader("Simulation Page")
     st.write("Select a simulation to view:")
     st.markdown("""The Simulations page provides various simulation from Phet, which are a great tool to help build foundational knowledge.""")
-    st.set_page_config(layout="wide")
     simulations = [
         ("Gene Expression Essentials", """
             <iframe src="https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_en.html"
@@ -450,8 +449,6 @@ def simulation_page():
             </iframe>
         """)
     ]
-    st.markdown(iframe_code, unsafe_allow_html=True)
-
     simulation_names = [sim[0] for sim in simulations]
     selected_simulation_name = st.selectbox("Select Simulation", simulation_names)
     selected_simulation = next(sim for sim in simulations if sim[0] == selected_simulation_name)
